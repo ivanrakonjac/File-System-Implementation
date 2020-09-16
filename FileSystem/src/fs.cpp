@@ -23,12 +23,12 @@ char FS::format()
 {
 	//return myImpl->format();
 }
-
+*/
 FileCnt FS::readRootDir()
 {
-	//return myImpl->get_number_of_files();
+	return myImpl->getNumberOfFiles();
 }
-*/
+
 char FS::doesExist(char* fname)
 {
 	return myImpl->doesFileExist(fname);

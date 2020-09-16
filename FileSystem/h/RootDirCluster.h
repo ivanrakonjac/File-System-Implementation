@@ -48,9 +48,6 @@ public:
 	*/
 	string getFullFileName(int rootDirEntry);
 
-//protected:
-	void getAllFilesNames();
-
 private:
 	DirEntry* dirEntry;
 	Partition* partition;

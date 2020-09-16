@@ -68,7 +68,7 @@ int RootDirCluster::getFileSize(int rootDirEntry) {
 string RootDirCluster::getFullFileName(int rootDirEntry) {
 	string fName = "";
 
-	for (int i = 0; dirEntry[rootDirEntry].fileName[i] != '*' && dirEntry[rootDirEntry].fileName[i] != '0'; i++)
+	for (int i = 0; dirEntry[rootDirEntry].fileName[i] != '*' && dirEntry[rootDirEntry].fileName[i] != '0' && i<8; i++)
 	{
 		fName = fName + dirEntry[rootDirEntry].fileName[i];
 	}
@@ -77,7 +77,7 @@ string RootDirCluster::getFullFileName(int rootDirEntry) {
 
 	string fExtension = "";
 
-	for (int i = 0; dirEntry[rootDirEntry].fileExtension[i] != '*' && dirEntry[rootDirEntry].fileExtension[i] != '0'; i++)
+	for (int i = 0; dirEntry[rootDirEntry].fileExtension[i] != '*' && dirEntry[rootDirEntry].fileExtension[i] != '0' && i<3; i++)
 	{
 		fExtension = fExtension + dirEntry[rootDirEntry].fileExtension[i];
 	}
@@ -85,11 +85,4 @@ string RootDirCluster::getFullFileName(int rootDirEntry) {
 	if (fExtension == "") return "-1";
 
 	return fName+"."+fExtension;
-}
-
-void RootDirCluster::getAllFilesNames() {
-	for (int i = 0; i < 64; i++)
-	{
-		cout <<i<<") "<< getFullFileName(i) << endl;
-	}
 }

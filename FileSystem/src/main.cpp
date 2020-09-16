@@ -12,7 +12,8 @@ int main() {
 	
 	cout << "Mount: " << FS::mount(p) << endl;
 
-	char str[] = "testFile1.md";
-	cout << "Does file exist: " << FS::doesExist(str);
+	char str[] = "testFile.c";
+	cout << "Does file exist: " << FS::doesExist(str) <<endl;
+	cout << "Broj fajlova u sistemu: " << FS::readRootDir()<<endl;
 
 }

@@ -29,6 +29,10 @@ char KernelFS::doesFileExist(char* fname)
 	if (it != filesMap.end()) return '1';
 	else return '0';
 }
+long KernelFS::getNumberOfFiles()
+{
+	return filesMap.size();
+}
 ;
 
 int KernelFS::initRootDirCluster(Partition* p) {
@@ -43,14 +47,8 @@ int KernelFS::initFilesMap() {
 		if (fullFileName != "-1") {
 			filesMap.insert({ fullFileName,12 });
 		}
-	}
+	}	
 
-	cout << "SVI ELEMENTI"<<endl;
-	for (auto itr = filesMap.begin(); itr != filesMap.end(); ++itr) {
-		cout << itr->first
-			<< '\t' << itr->second << '\n';
-	}
-	
 	return 1;
 }
 

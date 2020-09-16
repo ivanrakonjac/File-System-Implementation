@@ -19,6 +19,8 @@ public:
 
 	char doesFileExist(char* fname);
 
+	long getNumberOfFiles();
+
 protected:
 
 	static int initRootDirCluster(Partition* p);
