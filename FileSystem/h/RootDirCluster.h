@@ -7,7 +7,7 @@
 
 using namespace std;
 
-//broj najtova koje zauzima svaki ulaz u root direktorijum
+//broj bajtova koje zauzima svaki ulaz u root direktorijum
 const unsigned long SizeOfRootDirEntry = 32;
 //broj ulaza u root direktorijum
 const unsigned long numOfEntriesInRootDir = ClusterSize / SizeOfRootDirEntry;
@@ -42,6 +42,14 @@ public:
 	* vraca velicinu fajla u bajtovima
 	*/
 	int getFileSize(int rootDirEntry);
+
+	/*
+	* vraca imeFajla.ekstenzija
+	*/
+	string getFullFileName(int rootDirEntry);
+
+//protected:
+	void getAllFilesNames();
 
 private:
 	DirEntry* dirEntry;

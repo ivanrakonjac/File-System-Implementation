@@ -64,3 +64,32 @@ int RootDirCluster::setFileSize(int rootDirEntry, int fileSize) {
 int RootDirCluster::getFileSize(int rootDirEntry) {
 	return dirEntry[rootDirEntry].fileSize;
 }
+
+string RootDirCluster::getFullFileName(int rootDirEntry) {
+	string fName = "";
+
+	for (int i = 0; dirEntry[rootDirEntry].fileName[i] != '*' && dirEntry[rootDirEntry].fileName[i] != '0'; i++)
+	{
+		fName = fName + dirEntry[rootDirEntry].fileName[i];
+	}
+
+	if (fName == "") return "-1";
+
+	string fExtension = "";
+
+	for (int i = 0; dirEntry[rootDirEntry].fileExtension[i] != '*' && dirEntry[rootDirEntry].fileExtension[i] != '0'; i++)
+	{
+		fExtension = fExtension + dirEntry[rootDirEntry].fileExtension[i];
+	}
+
+	if (fExtension == "") return "-1";
+
+	return fName+"."+fExtension;
+}
+
+void RootDirCluster::getAllFilesNames() {
+	for (int i = 0; i < 64; i++)
+	{
+		cout <<i<<") "<< getFullFileName(i) << endl;
+	}
+}
