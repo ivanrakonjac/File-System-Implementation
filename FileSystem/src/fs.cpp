@@ -17,13 +17,12 @@ char FS::mount(Partition* partition)
 char FS::unmount()
 {
 	//return myImpl->unmount();
-}
-
+}*/
 char FS::format()
 {
-	//return myImpl->format();
+	return myImpl->format();
 }
-*/
+
 FileCnt FS::readRootDir()
 {
 	return myImpl->getNumberOfFiles();
@@ -39,7 +38,6 @@ File* FS::open(char* fname, char mode)
 {
 	//return myImpl->open(fname, mode);
 }
-
 char FS::deleteFile(char* fname)
 {
 	//return myImpl->delete_file(fname);
@@ -53,4 +51,3 @@ FS::~FS()
 {
 	// empty body
 }
-

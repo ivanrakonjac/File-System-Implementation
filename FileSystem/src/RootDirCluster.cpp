@@ -2,7 +2,7 @@
 
 RootDirCluster::RootDirCluster(Partition* p) {
 	partition = p;
-	p->readCluster(0, buffer);
+	p->readCluster(1, buffer);
 	dirEntry = (DirEntry*)buffer;
 }
 
@@ -68,7 +68,7 @@ int RootDirCluster::getFileSize(int rootDirEntry) {
 string RootDirCluster::getFullFileName(int rootDirEntry) {
 	string fName = "";
 
-	for (int i = 0; dirEntry[rootDirEntry].fileName[i] != '*' && dirEntry[rootDirEntry].fileName[i] != '0' && i<8; i++)
+	for (int i = 0; dirEntry[rootDirEntry].fileName[i] != '*' && dirEntry[rootDirEntry].fileName[i] != '0' && i < 8; i++)
 	{
 		fName = fName + dirEntry[rootDirEntry].fileName[i];
 	}
@@ -77,12 +77,25 @@ string RootDirCluster::getFullFileName(int rootDirEntry) {
 
 	string fExtension = "";
 
-	for (int i = 0; dirEntry[rootDirEntry].fileExtension[i] != '*' && dirEntry[rootDirEntry].fileExtension[i] != '0' && i<3; i++)
+	for (int i = 0; dirEntry[rootDirEntry].fileExtension[i] != '*' && dirEntry[rootDirEntry].fileExtension[i] != '0' && i < 3; i++)
 	{
 		fExtension = fExtension + dirEntry[rootDirEntry].fileExtension[i];
 	}
 
 	if (fExtension == "") return "-1";
 
-	return fName+"."+fExtension;
+	return fName + "." + fExtension;
+}
+
+void RootDirCluster::format()
+{
+	char* niz = (char*)dirEntry;
+	for (int i = 0; i < ClusterSize; i++)
+	{
+		niz[i] = '0';
+	}
+
+	dirEntry = (DirEntry*)dirEntry;
+
+	
 }

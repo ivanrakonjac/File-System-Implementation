@@ -2,16 +2,14 @@
 
 #include "part.h"
 #include "RootDirCluster.h"
-
-#include <iostream> 
+#include "BitVector.h"
 
 #include <iterator> 
-#include <string>
 #include <map>
 
 using namespace std;
 
-class KernelFS{
+class KernelFS {
 public:
 
 	static KernelFS* getInstance();
@@ -21,23 +19,20 @@ public:
 
 	long getNumberOfFiles();
 
+	char format();
+
 protected:
 
 	static int initRootDirCluster(Partition* p);
+	static int initBitVector(Partition* p);
+	static int initFilesMap(); //inicijalizuje filesMap mapu postojecim fajlovima iz root direktorijuma (poziva se iz mounta)
 
-	/*
-	* inicijalizuje filesMap mapu postojecim fajlovima iz root direktorijuma
-	* poziva se iz mounta
-	*/
-	static int initFilesMap();
-	
 private:
 	static Partition* partition;
 	static KernelFS* kernelFSInstace;
-	
-	static RootDirCluster* rootDirCluster;
 
+	static RootDirCluster* rootDirCluster;
+	static BitVector* bitVector;
 	static map<string, int> filesMap;
 
 };
-

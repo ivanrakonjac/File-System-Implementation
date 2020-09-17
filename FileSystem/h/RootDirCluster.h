@@ -1,18 +1,10 @@
 #pragma once
 
 #include "DataStructures.h"
-#include "part.h"
-#include <string>
-#include <iostream>
 
 using namespace std;
 
-//broj bajtova koje zauzima svaki ulaz u root direktorijum
-const unsigned long SizeOfRootDirEntry = 32;
-//broj ulaza u root direktorijum
-const unsigned long numOfEntriesInRootDir = ClusterSize / SizeOfRootDirEntry;
-
-class RootDirCluster{
+class RootDirCluster {
 
 public:
 	RootDirCluster(Partition* p);
@@ -25,7 +17,7 @@ public:
 
 	/*
 	* setuje 9, 10 i 11 bit u ulazu root direktorijuma
-	* to je ekstenzija fajla 
+	* to je ekstenzija fajla
 	*/
 	int setEkstenzija(int rootDirEntry, string ekstenzija);
 
@@ -48,9 +40,13 @@ public:
 	*/
 	string getFullFileName(int rootDirEntry);
 
+	/*
+	* setuje sve ulaze na 0;
+	*/
+	void format();
+
 private:
 	DirEntry* dirEntry;
 	Partition* partition;
 	char buffer[2048];
 };
-

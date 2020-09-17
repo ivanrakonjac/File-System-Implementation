@@ -3,6 +3,7 @@
 KernelFS* KernelFS::kernelFSInstace = nullptr;
 Partition* KernelFS::partition = nullptr;
 RootDirCluster* KernelFS::rootDirCluster = nullptr;
+BitVector* KernelFS::bitVector = nullptr;
 map<string, int> KernelFS::filesMap;
 
 
@@ -18,10 +19,12 @@ char KernelFS::mount(Partition* p) {
 	partition = p;
 
 	initRootDirCluster(partition);
+	initBitVector(partition);
 	initFilesMap();
 
 	return '1';
 }
+
 char KernelFS::doesFileExist(char* fname)
 {
 	auto it = filesMap.find(fname);
@@ -29,14 +32,34 @@ char KernelFS::doesFileExist(char* fname)
 	if (it != filesMap.end()) return '1';
 	else return '0';
 }
+
 long KernelFS::getNumberOfFiles()
 {
-	return filesMap.size();
+	long number = filesMap.size();
+	if (number > 0) return number;
+	else return -1;
+}
+
+char KernelFS::format()
+{
+	if (filesMap.size() > 0) {
+		filesMap.clear();
+	}
+	rootDirCluster->format();
+	bitVector->format();
+
+	return '1';
 }
 ;
 
 int KernelFS::initRootDirCluster(Partition* p) {
 	KernelFS::rootDirCluster = new RootDirCluster(p);
+	return 1;
+}
+
+int KernelFS::initBitVector(Partition* p)
+{
+	KernelFS::bitVector = new BitVector(p);
 	return 1;
 }
 
@@ -48,6 +71,12 @@ int KernelFS::initFilesMap() {
 			filesMap.insert({ fullFileName,12 });
 		}
 	}	
+
+	/*for (auto itr = filesMap.begin(); itr != filesMap.end(); ++itr) {
+		cout << '\t' << itr->first
+			<< '\t' << itr->second << '\n';
+	}
+	cout << endl;*/
 
 	return 1;
 }
