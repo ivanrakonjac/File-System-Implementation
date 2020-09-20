@@ -22,14 +22,16 @@ void BitVector::format()
 {
 	numFreeClusters = clustersNum * 8;
 	
-	for (int i = 0; i < (clustersNum * 8); i++) {
-		setClusterBit(i);
+	for (int i = 0; i < ClusterSize; i++) {
+		bitVector[i] = ~0;
 	}
 
 	clearClusterBit(0); 
 	clearClusterBit(1);
 
 	numFreeClusters -= 2;
+
+	partition->writeCluster(0, bitVector);
 }
 
 int BitVector::freeClusters()
@@ -61,7 +63,7 @@ int BitVector::getIndexOfFreeCluster()
 	return -1;
 }
 
-int BitVector::getNumOfCluster()
+int BitVector::getNumOfClusters()
 {
 	return clustersNum;
 }

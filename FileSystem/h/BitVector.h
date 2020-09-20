@@ -24,11 +24,19 @@ public:
 	bool isClusterFree(int bitIndex);
 
 	/*
+	* vraca broj klastera na particiji
+	*/
+	int getNumOfClusters();
+
+	/*
 	* vraca index prvog slobodnog klaster
+	* ako nema slobodnih vraca -1
 	*/
 	int getIndexOfFreeCluster();
 
-	int getNumOfCluster();
+	int getNumOfFreeClusters() {
+		return numFreeClusters;
+	}
 
 	void incNumFreeClusters() {
 		numFreeClusters++;
@@ -36,6 +44,14 @@ public:
 
 	void decNumFreeClusters() {
 		numFreeClusters--;
+	}
+
+	void decNumFreeClusters(int num) {
+		numFreeClusters-=num;
+	}
+
+	int saveBitVectorOnDisk() {
+		return partition->writeCluster(0, bitVector);
 	}
 
 private:

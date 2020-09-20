@@ -32,12 +32,13 @@ char FS::doesExist(char* fname)
 {
 	return myImpl->doesFileExist(fname);
 }
-/*
+
 // ReSharper disable once CppParameterMayBeConst
 File* FS::open(char* fname, char mode)
 {
-	//return myImpl->open(fname, mode);
+	return myImpl->open(fname, mode);
 }
+/*
 char FS::deleteFile(char* fname)
 {
 	//return myImpl->delete_file(fname);

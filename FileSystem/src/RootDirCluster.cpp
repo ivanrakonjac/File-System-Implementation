@@ -4,6 +4,7 @@ RootDirCluster::RootDirCluster(Partition* p) {
 	partition = p;
 	p->readCluster(1, buffer);
 	dirEntry = (DirEntry*)buffer;
+	numOfFreeEntries = numOfEntriesInRootDir;
 }
 
 int RootDirCluster::setName(int rootDirEntry, string name) {
@@ -56,7 +57,7 @@ int RootDirCluster::setFileSize(int rootDirEntry, int fileSize) {
 
 	dirEntry[rootDirEntry].fileSize = fileSize;
 
-	cout << "Write: " << partition->writeCluster(0, buffer) << endl;
+	//cout << "Write: " << partition->writeCluster(1, buffer) << endl;
 
 	return 1;
 }
@@ -68,7 +69,7 @@ int RootDirCluster::getFileSize(int rootDirEntry) {
 string RootDirCluster::getFullFileName(int rootDirEntry) {
 	string fName = "";
 
-	for (int i = 0; dirEntry[rootDirEntry].fileName[i] != '*' && dirEntry[rootDirEntry].fileName[i] != '0' && i < 8; i++)
+	for (int i = 0; dirEntry[rootDirEntry].fileName[i] != '*' && dirEntry[rootDirEntry].fileName[i] != 0 && i < 8; i++)
 	{
 		fName = fName + dirEntry[rootDirEntry].fileName[i];
 	}
@@ -77,7 +78,7 @@ string RootDirCluster::getFullFileName(int rootDirEntry) {
 
 	string fExtension = "";
 
-	for (int i = 0; dirEntry[rootDirEntry].fileExtension[i] != '*' && dirEntry[rootDirEntry].fileExtension[i] != '0' && i < 3; i++)
+	for (int i = 0; dirEntry[rootDirEntry].fileExtension[i] != '*' && dirEntry[rootDirEntry].fileExtension[i] != 0 && i < 3; i++)
 	{
 		fExtension = fExtension + dirEntry[rootDirEntry].fileExtension[i];
 	}
@@ -87,15 +88,30 @@ string RootDirCluster::getFullFileName(int rootDirEntry) {
 	return fName + "." + fExtension;
 }
 
+char* RootDirCluster::getFullFileNameChar(int rootDirEntry) {
+	return nullptr;
+}
+
 void RootDirCluster::format()
 {
 	char* niz = (char*)dirEntry;
 	for (int i = 0; i < ClusterSize; i++)
 	{
-		niz[i] = '0';
+		niz[i] = 0;
 	}
 
-	dirEntry = (DirEntry*)dirEntry;
+	partition->writeCluster(1, niz);
 
-	
+	dirEntry = (DirEntry*)niz;
+	numOfFreeEntries = numOfEntriesInRootDir;
+}
+
+int RootDirCluster::getIndexOfFreeEntry() {
+	for (int i = 0; i < numOfEntriesInRootDir; i++)
+	{
+		if (dirEntry[i].fileName[0] == 0) {
+			return i;
+		}
+	}
+	return -1;
 }
