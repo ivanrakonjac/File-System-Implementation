@@ -10,6 +10,8 @@
 
 using namespace std;
 
+class File;
+
 class KernelFS {
 public:
 
@@ -23,6 +25,18 @@ public:
 	char format();
 
 	File* open(char* fName, char mode);
+
+	/*
+	* alocira slobodan cluster
+	* vraca index clustera ako uspe ili -1 ako nema mesta
+	*/
+	static int allocateCluster();
+
+	static int deallocateCluster(int cluserIndex);
+
+	static unsigned long getNumOfFreeClusters() {
+		return bitVector->getNumOfFreeClusters();
+	}
 
 protected:
 

@@ -40,57 +40,61 @@ int main() {
 	FS::mount(p);
 	FS::format();
 
-	char filepath[] = "/proba.txt";
-	FS::open(filepath, 'w');
+	cout << "Br slob klastera: " << KernelFS::getNumOfFreeClusters() << endl;
 
-	char filepath2[] = "/proba2.txt";
-	FS::open(filepath2, 'w');
+	char filepath[] = "/proba.txt";
+	File* file=FS::open(filepath, 'w');
 	
-	char filepath3[] = "/proba3.txt";
+	/*char filepath3[] = "/proba3.txt";
 	FS::open(filepath3, 'w');
 
 	char filepath4[] = "/proba4.txt";
-	FS::open(filepath4, 'w');
+	FS::open(filepath4, 'w');*/
 
-	/*RootDirCluster* rdc = new RootDirCluster(p);
-	cout << "SetName: " << rdc->setName(2, "ivanFajl") << endl;
-	cout << "SetExtension: " << rdc->setEkstenzija(2, "txt") << endl;
-	cout << "SetFirstLevecIndexCluster: " << rdc->setFirsLevelIndexClusterNumber(2, 10025) << endl;
-	cout << "GetFirstLevecIndexClusterNumber: " << rdc->getFirstLevelIndexClusterNumber(2) << endl;
-	cout << "SetFileSize: " << rdc->setFileSize(2, 721) << endl;
-	cout << "GetFileSize: " << rdc->getFileSize(2) << endl;*/
+	const unsigned long broj = 4100;
+	char niz[broj];
 
-	char buffer[2048];
-
-	cout << "Read cluster1: " << p->readCluster(1, buffer) << endl;
-
-	for (int i = 0; i < 2048; i++) {
-		if (i % 32 == 0 && i!= 0) cout << endl;
-		cout << buffer[i];
+	for (unsigned long i = 0; i < broj; i++) {
+		niz[i] = 'i';
 	}
 
+	cout<<"Write: "<<file->write(broj, niz)<<endl;
+
+	file = FS::open(filepath, 'r');
+	char readNiz[broj];
+	file->seek(0);
+
+	cout << "READ NIZ:" << file->read(broj, readNiz) << endl;
+	for (int i = 0; i < broj; i++) {
+		if (i % 64 == 0 && i != 0) cout << endl;
+		cout << readNiz[i];
+	}
 	cout << endl;
 
-	char buffer2[2048];
+	file->seek(2048);
+	cout << "SEEK NIZ:" << file->truncate() << endl;
+	cout << "Cursor: " << file->filePos() << endl;
+	cout << "Size: " << file->getFileSize() << endl;
+	cout << "Mode: " << file->getMode() << endl;
+	cout << "EOF: " << file->eof() << endl;
+	
+	cout << endl;
 
-	cout << "Read cluster0: " << p->readCluster(0, buffer2) << endl;
-
-	for (int i = 0; i < 2048; i++) {
-		if (i % 8 == 0 && i != 0) cout << endl;
-		cout << buffer2[i];
+	char readNiz2[broj];
+	file->seek(0);
+	cout << "READ NIZ:" << file->read(broj, readNiz2) << endl;
+	for (int i = 0; i < broj; i++) {
+		if (i % 64 == 0 && i != 0) cout << endl;
+		cout << readNiz2[i];
 	}
+	cout << endl;
 
+	cout << "Cursor: " << file->filePos() << endl;
+	cout << "Size: " << file->getFileSize() << endl;
+	cout << "Mode: " << file->getMode() << endl;
+	cout << "EOF: " << file->eof() << endl;
 
-	/*std::thread t1(foo);
-	std::thread t2(foo);
-	std::thread t3(foo);
-	std::thread t4(foo2);
-
-	t1.join();
-	t2.join();
-	t3.join();
-	t4.join();*/
-
+	cout << "Br slob klastera: " << KernelFS::getNumOfFreeClusters() << endl;
 
 	return 0;
 

@@ -68,10 +68,7 @@ File* KernelFS::open(char* fName, char mode)
 	{
 	case 'r':
 		if (fileExists == '1') {
-
-			auto it = filesMap.find(fileName);
-			openRead(fileName); 
-			
+			return openRead(fileName); 	
 		}
 		return nullptr;
 	case 'w':
@@ -95,13 +92,19 @@ File* KernelFS::open(char* fName, char mode)
 }
 
 File* KernelFS::openRead(char* fName) {
-	return nullptr;
+	auto it = filesMap.find(getNameFromFullName(fName)+"."+getExtensionFromFullName(fName));
+	
+	File* file = it->second;
+	file->setMode('r');
+	file->addCursorForThread();
+
+	return file;
 }
 
 File* KernelFS::openWrite(char* fName) {
 	cout << "openWrite: " << fName << endl;
 
-	if (rootDirCluster->getNumOfFreeEntries() > 0 && bitVector->getNumOfFreeClusters()>3) {
+	if (rootDirCluster->getNumOfFreeEntries() > 0 && bitVector->getNumOfFreeClusters()>1) {
 		
 		int rootDirEntry = rootDirCluster->getIndexOfFreeEntry();
 		rootDirCluster->decNumOfFreeEntries();
@@ -110,37 +113,15 @@ File* KernelFS::openWrite(char* fName) {
 		bitVector->clearClusterBit(index1);
 		bitVector->decNumFreeClusters();
 
-		int index2 = bitVector->getIndexOfFreeCluster();
-		bitVector->clearClusterBit(index2);
-		bitVector->decNumFreeClusters();
-
-		int data = bitVector->getIndexOfFreeCluster();
-		bitVector->clearClusterBit(data);
-		bitVector->decNumFreeClusters();
-
 		rootDirCluster->setName(rootDirEntry, getNameFromFullName(fName));
 		rootDirCluster->setEkstenzija(rootDirEntry, getExtensionFromFullName(fName));
 		rootDirCluster->setFirsLevelIndexClusterNumber(rootDirEntry, index1);
 		rootDirCluster->setFileSize(rootDirEntry, 0);
 
-		cout << "index1=" << index1 << " index2=" << index2 << " data=" << data << endl;
-
-		char buffer[ClusterSize];
-
-		partition->readCluster(index1, buffer);
-		IndexCluster* cluster = (IndexCluster*)buffer;
-		cluster[0].entry = index2;
-		partition->writeCluster(index1, buffer);
-
-		partition->readCluster(index2, buffer);
-		IndexCluster* cluster2 = (IndexCluster*)buffer;
-		cluster2[0].entry = data;
-		partition->writeCluster(index2, buffer);
-
 		cout<<"RootDirOnDisk: "<<rootDirCluster->saveRootDirClusterOnDisk()<<endl;
 		cout << "BitVectorOnDisk: " << bitVector->saveBitVectorOnDisk() << endl;
 
-		return new File(rootDirCluster->getFullFileName(rootDirEntry), index1, 0,'w');
+		return new File(partition, rootDirCluster->getFullFileName(rootDirEntry), index1, 0,'w');
 
 	}
 	else {
@@ -206,6 +187,25 @@ string KernelFS::getExtensionFromFullName(char* fullFileName) {
 	fName.erase(0, pos + delimiter.length());
 
 	return fName;
+}
+
+int KernelFS::allocateCluster() {
+	int index = bitVector->getIndexOfFreeCluster();
+
+	if (index > -1) {
+		bitVector->clearClusterBit(index);
+		bitVector->decNumFreeClusters();
+		return index;
+	}
+	else {
+		return -1;
+	}	
+}
+
+int KernelFS::deallocateCluster(int clusterIndex) {
+	bitVector->setClusterBit(clusterIndex);
+	bitVector->incNumFreeClusters();
+	return 1;
 }
 
 

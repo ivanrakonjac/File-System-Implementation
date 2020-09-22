@@ -1,5 +1,7 @@
 #pragma once
 
+#include "KernelFS.h"
+
 typedef long FileCnt;
 typedef unsigned long BytesCnt;
 
