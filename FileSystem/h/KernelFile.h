@@ -12,7 +12,9 @@ public:
 	KernelFile(Partition* p, string name, int firstLvlIndex, int fSize,char mode);
 
 	char write(unsigned long bytesCnt, char* buffer);
+	char write(unsigned long bytesCnt, char* buffer, unsigned long position);
 	unsigned long read(unsigned long cnt, char* buffer);
+	char append(unsigned long bytesCnt, char* buffer);
 
 	char seek(unsigned long position);
 	char eof();

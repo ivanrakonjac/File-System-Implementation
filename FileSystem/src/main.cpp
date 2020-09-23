@@ -1,101 +1,116 @@
 #include <iostream>
+#include <fstream>
+
 #include "part.h"
 #include "DataStructures.h"
 #include "RootDirCluster.h"
 #include "fs.h"
 #include "BitVector.h"
 
-
-std::mutex g_display_mutex;
-
-
 using namespace std;
 
-void foo()
-{
-	std::thread::id this_id = std::this_thread::get_id();
-
-	g_display_mutex.lock();
-	std::cout << "thread " << this_id << " u kriticnoj sekciji\n";
-	std::this_thread::sleep_for(std::chrono::seconds(5));
-	g_display_mutex.unlock();
-
-}
-
-void foo2()
-{
-	std::thread::id this_id = std::this_thread::get_id();
-
-	g_display_mutex.lock();
-	std::cout << "thread " << this_id << " u kriticnoj sekciji\n";
-	g_display_mutex.unlock();
-
-	std::this_thread::sleep_for(std::chrono::seconds(1));
-}
 
 
 int main() {
+	Partition* partition;
 
-	Partition* p = new Partition((char*)"resources/p1.ini");
-	FS::mount(p);
+	char* ulazBuffer;
+	int ulazSize;
+
+	FILE* file = fopen("Ulaz.jpg", "rb");
+	if (file == 0) {
+		cout << "GRESKA: Nije nadjen ulazni fajl 'ulaz.dat' u os domacinu!" << endl;
+		system("PAUSE");
+		return 0;//exit program
+	}
+	ulazBuffer = new char[32 * 1024 * 1024];//32MB
+	ulazSize = fread(ulazBuffer, 1, 32 * 1024 * 1024, file);
+	fclose(file);
+
+	partition = new Partition((char*)"resources/p1.ini");
+	FS::mount(partition);
 	FS::format();
 
-	cout << "Br slob klastera: " << KernelFS::getNumOfFreeClusters() << endl;
+	File* f;
 
-	char filepath[] = "/proba.txt";
-	File* file=FS::open(filepath, 'w');
+	char filepath[] = "/fajl1.dat";
+	f = FS::open(filepath, 'w');
+	f->write(ulazSize, ulazBuffer);
+
+	/*char tmp[2048];
+	partition->readCluster(295, tmp);
+	cout << tmp<<endl;*/
+
+
+	//f->deleteFile();
+
+	//delete f;
+
+
+	//char buffer[1500];
+
+	//f->seek(0);
+	//f->read(1500, buffer);
+
+	cout << "File size: " << f->getFileSize() << endl;
+
+
+	/*for (int i = 0; i < 1500; i++)
+	{
+		if (i % 20 == 0 && i != 0) cout << endl;
+		cout << buffer[i];
+	}*/
+
+	//File* src, * dst;
+	//char filepath2[] = "/fajl1.dat";
+	/*src = FS::open(filepath2, 'r');
+	src->seek(src->getFileSize() / 2);*/
+
+	/*char filepath1[] = "/fajll5.dat";
+	dst = FS::open(filepath1, 'w');
+
+	char c;
+
+	f->seek(0);
+	f->read(1, &c);
+	dst->write(1, &c);*/
+	/*
+	while (!f->eof()) {
+		f->read(1, &c);
+		//cout << c;
+		dst->write(1, &c, 0);
+	}
+
+	cout << "f:" << f->filePos() << endl;
+	cout << "dst:" << dst->filePos() << endl;
+
+	cout << "position: " << dst->getFileSize() << endl;
+
+	//delete dst;
+	//delete src;
+	*/
+	//char filepath3[] = "/fajl5.dat";
+	//f = FS::open(filepath1, 'r');
+
+	ofstream fout("izlaz1.jpg", ios::out | ios::binary);
+	char* buff = new char[f->getFileSize()];
+
+	f->seek(0);
+	f->read(f->getFileSize(), buff);
+
 	
-	/*char filepath3[] = "/proba3.txt";
-	FS::open(filepath3, 'w');
 
-	char filepath4[] = "/proba4.txt";
-	FS::open(filepath4, 'w');*/
+	/*for (int i = 0; i < f->getFileSize(); i++)
+	{
+		if (i % 20 == 0 && i != 0) cout << endl;
+		cout << buff[i];
+	}*/
 
-	const unsigned long broj = 4100;
-	char niz[broj];
+	fout.write(buff, f->getFileSize());
 
-	for (unsigned long i = 0; i < broj; i++) {
-		niz[i] = 'i';
-	}
-
-	cout<<"Write: "<<file->write(broj, niz)<<endl;
-
-	file = FS::open(filepath, 'r');
-	char readNiz[broj];
-	file->seek(0);
-
-	cout << "READ NIZ:" << file->read(broj, readNiz) << endl;
-	for (int i = 0; i < broj; i++) {
-		if (i % 64 == 0 && i != 0) cout << endl;
-		cout << readNiz[i];
-	}
-	cout << endl;
-
-	file->seek(2048);
-	cout << "SEEK NIZ:" << file->truncate() << endl;
-	cout << "Cursor: " << file->filePos() << endl;
-	cout << "Size: " << file->getFileSize() << endl;
-	cout << "Mode: " << file->getMode() << endl;
-	cout << "EOF: " << file->eof() << endl;
-	
-	cout << endl;
-
-	char readNiz2[broj];
-	file->seek(0);
-	cout << "READ NIZ:" << file->read(broj, readNiz2) << endl;
-	for (int i = 0; i < broj; i++) {
-		if (i % 64 == 0 && i != 0) cout << endl;
-		cout << readNiz2[i];
-	}
-	cout << endl;
-
-	cout << "Cursor: " << file->filePos() << endl;
-	cout << "Size: " << file->getFileSize() << endl;
-	cout << "Mode: " << file->getMode() << endl;
-	cout << "EOF: " << file->eof() << endl;
-
-	cout << "Br slob klastera: " << KernelFS::getNumOfFreeClusters() << endl;
-
-	return 0;
-
+	//delete[] buff;
+	fout.close();
+	delete f;
 }
+
+

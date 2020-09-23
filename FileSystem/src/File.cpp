@@ -10,6 +10,16 @@ char File::write(unsigned long cnt, char* buffer)
 	return kernelFile->write(cnt,buffer);
 }
 
+char File::write(unsigned long bytesCnt, char* buffer, unsigned long position)
+{
+	return kernelFile->write(bytesCnt, buffer, position);
+}
+
+char File::append(unsigned long bytesCnt, char* buffer)
+{
+	return kernelFile->append(bytesCnt, buffer);
+}
+
 unsigned long File::read(unsigned long cnt, char* buffer)
 {
 	return kernelFile->read(cnt,buffer);
