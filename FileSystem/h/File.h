@@ -8,6 +8,7 @@ class File
 {
 public:
 	File(Partition* p, string name, int firstLvlIndex, int fSize, char mode='/');
+	~File();
 
 	char write(unsigned long, char* buffer);
 	char append(unsigned long bytesCnt, char* buffer);
@@ -19,10 +20,7 @@ public:
 	char eof();
 	char truncate();
 
-
 	char deleteFile();
-
-	
 
 	void setMode(char m);
 	char getMode();

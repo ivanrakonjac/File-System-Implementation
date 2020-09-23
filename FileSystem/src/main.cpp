@@ -37,17 +37,10 @@ int main() {
 	f = FS::open(filepath, 'w');
 	f->write(ulazSize, ulazBuffer);
 
-	//f->deleteFile();
-
-	//delete f;
 
 	cout << "File size: " << f->getFileSize() << endl;
 
 	File* src, * dst;
-	//char filepath2[] = "/fajl1.dat";
-	/*src = FS::open(filepath2, 'r');
-	src->seek(src->getFileSize() / 2);*/
-
 	char filepath1[] = "/fajll5.dat";
 	dst = FS::open(filepath1, 'w');
 
@@ -59,16 +52,9 @@ int main() {
 		dst->append(1, &c);
 	}
 
-	/*cout << "f:" << f->filePos() << endl;
-	cout << "dst:" << dst->filePos() << endl;
-
-	cout << "position: " << dst->getFileSize() << endl;
 
 	//delete dst;
 	//delete src;
-	*/
-	//char filepath3[] = "/fajl5.dat";
-	//f = FS::open(filepath1, 'r');
 
 	ofstream fout("izlaz2.jpg", ios::out | ios::binary);
 	char* buff = new char[f->getFileSize()];
@@ -87,7 +73,7 @@ int main() {
 
 	fout.write(buff, f->getFileSize());
 
-	//delete[] buff;
+	delete[] buff;
 	fout.close();
 	delete f;
 }

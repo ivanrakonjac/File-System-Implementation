@@ -46,6 +46,7 @@ protected:
 
 	File* openRead(char* fName);
 	File* openWrite(char* fName);
+	File* openAppend(char* fName);
 
 	string getNameFromFullName(char* fName);
 	string getExtensionFromFullName(char* fullFileName);

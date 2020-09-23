@@ -73,18 +73,19 @@ File* KernelFS::open(char* fName, char mode)
 		return nullptr;
 	case 'w':
 		if (fileExists == '1') {
-			//obrisi fajl
-			cout << "fajlObrisan" <<endl;
+			auto it = filesMap.find(getNameFromFullName(fName) + "." + getExtensionFromFullName(fName));
+			File* file = it->second;
+			file->deleteFile();
+			filesMap.erase(getNameFromFullName(fName));
 		}
-		
 		newFile = openWrite(fileName);
 		filesMap.insert({ fileName,newFile});
 		return newFile;
-
-		break;
 	case 'a':
-		cout << "mode: a | doesFileExist: " << fileExists << endl;
-		break;
+		if (fileExists == '1') {
+			return openAppend(fileName);
+		}
+		return nullptr;
 	default:
 		break;
 	}
@@ -93,11 +94,9 @@ File* KernelFS::open(char* fName, char mode)
 
 File* KernelFS::openRead(char* fName) {
 	auto it = filesMap.find(getNameFromFullName(fName)+"."+getExtensionFromFullName(fName));
-	
 	File* file = it->second;
 	file->setMode('r');
 	file->addCursorForThread();
-
 	return file;
 }
 
@@ -118,9 +117,6 @@ File* KernelFS::openWrite(char* fName) {
 		rootDirCluster->setFirsLevelIndexClusterNumber(rootDirEntry, index1);
 		rootDirCluster->setFileSize(rootDirEntry, 0);
 
-		cout<<"RootDirOnDisk: "<<rootDirCluster->saveRootDirClusterOnDisk()<<endl;
-		cout << "BitVectorOnDisk: " << bitVector->saveBitVectorOnDisk() << endl;
-
 		return new File(partition, rootDirCluster->getFullFileName(rootDirEntry), index1, 0,'w');
 
 	}
@@ -128,8 +124,16 @@ File* KernelFS::openWrite(char* fName) {
 		return nullptr;
 	}
 
-	cout << "Free entry: " << rootDirCluster->getIndexOfFreeEntry()<<endl;
 	return nullptr;
+}
+
+File* KernelFS::openAppend(char* fName)
+{
+	auto it = filesMap.find(getNameFromFullName(fName) + "." + getExtensionFromFullName(fName));
+	File* file = it->second;
+	file->setMode('a');
+	file->addCursorForThread();
+	return file;
 }
 
 
@@ -151,15 +155,15 @@ int KernelFS::initFilesMap() {
 		if (fullFileName != "-1") {
 			filesMap.insert({ fullFileName, nullptr});
 		}
-		//new File(fullFileName,rootDirCluster->getFirstLevelIndexClusterNumber(i),rootDirCluster->getFileSize(i))
+		new File(partition, fullFileName, rootDirCluster->getFirstLevelIndexClusterNumber(i), rootDirCluster->getFileSize(i));
 	}	
 
-	cout << "Mapa fajlova" << endl;
+	/*cout << "Mapa fajlova" << endl;
 	for (auto itr = filesMap.begin(); itr != filesMap.end(); ++itr) {
 		cout << '\t' << itr->first
 			<< '\t' << itr->second << '\n';
 	}
-	cout << endl;
+	cout << endl;*/
 
 	return 1;
 }

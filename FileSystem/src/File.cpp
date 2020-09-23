@@ -5,9 +5,21 @@ File::File(Partition* p, string name, int firstLvlIndex, int fSize, char mode)
 	kernelFile = new KernelFile(p, name, firstLvlIndex, fSize, mode);
 }
 
+File::~File()
+{
+	kernelFile->deleteFile();
+}
+
 char File::write(unsigned long cnt, char* buffer)
 {
-	return kernelFile->write(cnt,buffer);
+	if (kernelFile->getMode() == 'r') return 0;
+
+	if (kernelFile->getMode() == 'a') {
+		return kernelFile->append(cnt, buffer);
+	}
+	else {
+		return kernelFile->write(cnt, buffer);
+	}
 }
 
 char File::append(unsigned long bytesCnt, char* buffer)

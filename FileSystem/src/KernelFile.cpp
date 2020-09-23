@@ -26,6 +26,7 @@ KernelFile::KernelFile(Partition* p, string fName, int firstLvlIndex, int fSize,
 
 char KernelFile::write(unsigned long bytesCnt, char* buffer)
 {
+	
 	int index2 = getIndex2Cluster();
 	int data = getDataCluster();
 
@@ -62,7 +63,7 @@ char KernelFile::write(unsigned long bytesCnt, char* buffer)
 }
 
 
-char KernelFile::deleteFile()
+char KernelFile::printIndexesStruct()
 {
 	IndexCluster* ind1Cluster = (IndexCluster*)index1Cluster;
 
@@ -79,6 +80,13 @@ char KernelFile::deleteFile()
 	}
 
 	return '1';
+}
+
+char KernelFile::deleteFile()
+{
+	seek(0);
+	truncate();
+	return 1;
 }
 
 void KernelFile::addCursorForThread()
@@ -200,12 +208,10 @@ char KernelFile::append(unsigned long bytesCnt, char* buffer)
 	int index2;
 
 	if (index2FreeEntriesNum == 0) {
-		//partition->writeCluster(index2ClusterPoRedu - 1, tmpIndex2Cluster);
 		index2 = getIndex2Cluster();
 	}
 
 	if (ClusterSize - (size % 2048) == 2048) {
-		//partition->writeCluster(dataClusterPoRedu - 1, tmpDataCluster);
 		data = getDataCluster();
 		if (data == '-1') return '0';
 	}

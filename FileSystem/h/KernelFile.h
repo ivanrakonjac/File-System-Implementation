@@ -55,6 +55,9 @@ protected:
 	//vraca index entryNumtog klastera u tempDataClasteru
 	int getIndexOfDataCluster(int entryNum);
 
+	//stampa strukturu indeksa
+	char printIndexesStruct();
+
 private:
 	int numReaders;
 	int numWriters;
