@@ -49,9 +49,9 @@ char KernelFile::write(unsigned long bytesCnt, char* buffer)
 
 		seek (numOfWrittenBytes);
 
-		int a = partition->writeCluster(dataClusterNumber, tmpDataCluster);
-		int b =  partition->writeCluster(index2ClusterNumber, tmpIndex2Cluster);
-		int c =  partition->writeCluster(index1ClusterNumber, index1Cluster);
+		partition->writeCluster(dataClusterNumber, tmpDataCluster);
+		partition->writeCluster(index2ClusterNumber, tmpIndex2Cluster);
+		partition->writeCluster(index1ClusterNumber, index1Cluster);
 		return '1';
 	}
 	else {
@@ -61,34 +61,6 @@ char KernelFile::write(unsigned long bytesCnt, char* buffer)
 	}
 }
 
-char KernelFile::write(unsigned long bytesCnt, char* buffer, unsigned long p)
-{
-	BytesCnt numOfWrittenBytes = 0;
-
-	unsigned long position = size;
-
-	while (numOfWrittenBytes != bytesCnt) {
-
-		if (dataFreeSpaceNum == 0) {
-			partition->writeCluster(dataClusterNumber, tmpDataCluster);
-			dataClusterNumber = getDataCluster();
-			if (dataClusterNumber == -1) return numOfWrittenBytes;
-		}
-
-		tmpDataCluster[position % ClusterSize] = buffer[numOfWrittenBytes % ClusterSize];
-		numOfWrittenBytes++;
-		size++;
-		dataFreeSpaceNum--;
-
-	}
-
-	seek(numOfWrittenBytes);
-
-	partition->writeCluster(dataClusterNumber, tmpDataCluster);
-	partition->writeCluster(index2ClusterNumber, tmpIndex2Cluster);
-	partition->writeCluster(index1ClusterNumber, index1Cluster);
-	return '1';
-}
 
 char KernelFile::deleteFile()
 {
@@ -218,10 +190,10 @@ char KernelFile::append(unsigned long bytesCnt, char* buffer)
 
 	int dataClusterPoRedu = cursor / ClusterSize;
 	int positionInDataCluster = cursor % ClusterSize;
-	int index2ClusterPoRedu = dataClusterPoRedu / (ClusterSize / 32);
+	int index2ClusterPoRedu = dataClusterPoRedu / (ClusterSize / 4);
 
-	index1FreeEntriesNum = (ClusterSize / 32) - index2ClusterPoRedu;
-	index2FreeEntriesNum = (ClusterSize / 32) - dataClusterPoRedu;
+	index1FreeEntriesNum = (ClusterSize / 4) - index2ClusterPoRedu;
+	index2FreeEntriesNum = (ClusterSize / 4) - dataClusterPoRedu;
 	dataFreeSpaceNum = ClusterSize - (size % 2048);
 
 	int data;
@@ -297,18 +269,17 @@ char KernelFile::eof()
 }
 
 
-//proveriti sta se tacno desava ovde
 char KernelFile::truncate()
 {
 	//svaka nit koja cita ima svoj kursor
 	auto it = threadCursorMap.find(std::this_thread::get_id());
 	cursor = it->second;
 
-	if (cursor == size) return '0';
+	if (cursor == size) return 0;
 
 	unsigned long dataClusterPoRedu = cursor / ClusterSize;
 	unsigned long positionInDataCluster = cursor % ClusterSize;
-	unsigned long index2ClusterPoRedu = dataClusterPoRedu / (ClusterSize / 32);
+	unsigned long index2ClusterPoRedu = dataClusterPoRedu / (ClusterSize / 4);
 
 	unsigned long brojPodataka = size - cursor;
 
@@ -324,9 +295,9 @@ char KernelFile::truncate()
 		}
 	}
 
-	if (brDataClustKojeTrebaObrisati > (ClusterSize / 32)) {
-		if (brDataClustKojeTrebaObrisati % (ClusterSize / 32) == 0) brIndex2ClustKojeTrebaObrisati = brDataClustKojeTrebaObrisati / (ClusterSize / 32);
-		else brIndex2ClustKojeTrebaObrisati = brDataClustKojeTrebaObrisati / (ClusterSize / 32) + 1;
+	if (brDataClustKojeTrebaObrisati > (ClusterSize / 4)) {
+		if (brDataClustKojeTrebaObrisati % (ClusterSize / 4) == 0) brIndex2ClustKojeTrebaObrisati = brDataClustKojeTrebaObrisati / (ClusterSize / 4);
+		else brIndex2ClustKojeTrebaObrisati = brDataClustKojeTrebaObrisati / (ClusterSize / 4) + 1;
 	}
 
 	partition->readCluster(getIndexOfIndex2Cluster(index2ClusterPoRedu), tmpIndex2Cluster); //dohvati mi index2Claster koji mi treba
@@ -336,7 +307,7 @@ char KernelFile::truncate()
 
 	while (brojac < brojPodataka) {
 		if (positionInDataCluster % ClusterSize == 0 && positionInDataCluster != 0) { //kada sam stigao do kraja data klastera
-			if (dataClusterPoRedu == ClusterSize / 32 - 1) { //ako je slucajno taj data cluster 64. po redu (poslednji) => sledeci index2Cluster
+			if (dataClusterPoRedu == ClusterSize / 4 - 1) { //ako je slucajno taj data cluster 512. po redu (poslednji) => sledeci index2Cluster
 
 				partition->writeCluster(getIndexOfIndex2Cluster(index2ClusterPoRedu), tmpIndex2Cluster);
 				KernelFS::deallocateCluster(getIndexOfIndex2Cluster(index2ClusterPoRedu));
@@ -347,7 +318,7 @@ char KernelFile::truncate()
 				index1FreeEntriesNum++;
 
 				index2ClusterPoRedu++;
-				index2FreeEntriesNum = ClusterSize / 32;
+				index2FreeEntriesNum = ClusterSize / 4;
 				partition->readCluster(getIndexOfIndex2Cluster(index2ClusterPoRedu), tmpIndex2Cluster);
 				
 			}
@@ -360,7 +331,7 @@ char KernelFile::truncate()
 			ind2Cluster[dataClusterPoRedu].entry = 0;
 			index2FreeEntriesNum++;
 
-			if (dataClusterPoRedu == ClusterSize / 32 - 1) dataClusterPoRedu = 0;
+			if (dataClusterPoRedu == ClusterSize / 4 - 1) dataClusterPoRedu = 0;
 			else dataClusterPoRedu++;
 
 			dataFreeSpaceNum = ClusterSize;
@@ -394,9 +365,10 @@ char KernelFile::truncate()
 	partition->writeCluster(getIndexOfIndex2Cluster(index2ClusterPoRedu), tmpIndex2Cluster);
 	partition->writeCluster(index1ClusterNumber, index1Cluster);
 
-	size = cursor;
+	size = size - cursor;
+	seek(size);
 
-	return '1';
+	return 1;
 }
 
 

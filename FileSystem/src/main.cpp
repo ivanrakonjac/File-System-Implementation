@@ -37,51 +37,30 @@ int main() {
 	f = FS::open(filepath, 'w');
 	f->write(ulazSize, ulazBuffer);
 
-	/*char tmp[2048];
-	partition->readCluster(295, tmp);
-	cout << tmp<<endl;*/
-
-
 	//f->deleteFile();
 
 	//delete f;
 
-
-	//char buffer[1500];
-
-	//f->seek(0);
-	//f->read(1500, buffer);
-
 	cout << "File size: " << f->getFileSize() << endl;
 
-
-	/*for (int i = 0; i < 1500; i++)
-	{
-		if (i % 20 == 0 && i != 0) cout << endl;
-		cout << buffer[i];
-	}*/
-
-	//File* src, * dst;
+	File* src, * dst;
 	//char filepath2[] = "/fajl1.dat";
 	/*src = FS::open(filepath2, 'r');
 	src->seek(src->getFileSize() / 2);*/
 
-	/*char filepath1[] = "/fajll5.dat";
+	char filepath1[] = "/fajll5.dat";
 	dst = FS::open(filepath1, 'w');
 
 	char c;
 
 	f->seek(0);
-	f->read(1, &c);
-	dst->write(1, &c);*/
-	/*
+	
 	while (!f->eof()) {
 		f->read(1, &c);
-		//cout << c;
-		dst->write(1, &c, 0);
+		dst->append(1, &c);
 	}
 
-	cout << "f:" << f->filePos() << endl;
+	/*cout << "f:" << f->filePos() << endl;
 	cout << "dst:" << dst->filePos() << endl;
 
 	cout << "position: " << dst->getFileSize() << endl;
@@ -92,21 +71,19 @@ int main() {
 	//char filepath3[] = "/fajl5.dat";
 	//f = FS::open(filepath1, 'r');
 
-	ofstream fout("izlaz1.jpg", ios::out | ios::binary);
-	char* buff = new char[f->getFileSize()];
+	ofstream fout("izlaz2.jpg", ios::out | ios::binary);
+	char* buff = new char[dst->getFileSize()];
 
-	f->seek(0);
-	f->read(f->getFileSize(), buff);
+	dst->seek(dst->getFileSize()/2);
+	dst->truncate();
 
-	
+	f->seek(f->getFileSize()/2);
+	dst->seek(f->filePos());
 
-	/*for (int i = 0; i < f->getFileSize(); i++)
-	{
-		if (i % 20 == 0 && i != 0) cout << endl;
-		cout << buff[i];
-	}*/
+	dst->seek(0);
+	dst->read(dst->getFileSize(), buff);
 
-	fout.write(buff, f->getFileSize());
+	fout.write(buff, dst->getFileSize());
 
 	//delete[] buff;
 	fout.close();

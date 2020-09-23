@@ -10,7 +10,6 @@ public:
 	File(Partition* p, string name, int firstLvlIndex, int fSize, char mode='/');
 
 	char write(unsigned long, char* buffer);
-	char write(unsigned long bytesCnt, char* buffer, unsigned long position);
 	char append(unsigned long bytesCnt, char* buffer);
 	unsigned long read(unsigned long cnt, char* buffer);
 
