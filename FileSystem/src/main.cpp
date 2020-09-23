@@ -17,7 +17,7 @@ int main() {
 	char* ulazBuffer;
 	int ulazSize;
 
-	FILE* file = fopen("Ulaz.jpg", "rb");
+	FILE* file = fopen("ulazMala.jpg", "rb");
 	if (file == 0) {
 		cout << "GRESKA: Nije nadjen ulazni fajl 'ulaz.dat' u os domacinu!" << endl;
 		system("PAUSE");
@@ -54,7 +54,6 @@ int main() {
 	char c;
 
 	f->seek(0);
-	
 	while (!f->eof()) {
 		f->read(1, &c);
 		dst->append(1, &c);
@@ -72,18 +71,21 @@ int main() {
 	//f = FS::open(filepath1, 'r');
 
 	ofstream fout("izlaz2.jpg", ios::out | ios::binary);
-	char* buff = new char[dst->getFileSize()];
-
-	dst->seek(dst->getFileSize()/2);
-	dst->truncate();
-
-	f->seek(f->getFileSize()/2);
-	dst->seek(f->filePos());
+	char* buff = new char[f->getFileSize()];
 
 	dst->seek(0);
-	dst->read(dst->getFileSize(), buff);
+	dst->truncate();
 
-	fout.write(buff, dst->getFileSize());
+	f->seek(dst->getFileSize());
+	while (!f->eof()) {
+		f->read(1, &c);
+		dst->append(1, &c);
+	}
+
+	dst->seek(0);
+	dst->read(f->getFileSize(), buff);
+
+	fout.write(buff, f->getFileSize());
 
 	//delete[] buff;
 	fout.close();

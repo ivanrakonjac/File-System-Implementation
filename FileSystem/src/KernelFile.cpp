@@ -228,12 +228,13 @@ char KernelFile::append(unsigned long bytesCnt, char* buffer)
 
 		tmpDataCluster[positionInDataCluster % ClusterSize] = buffer[numOfWrittenBytes];
 		numOfWrittenBytes++;
+		positionInDataCluster++;
 		size++;
 		dataFreeSpaceNum--;
 
 	}
 
-	seek(cursor + numOfWrittenBytes);
+	seek(size);
 
 	partition->writeCluster(dataClusterNumber, tmpDataCluster);
 	partition->writeCluster(index2ClusterNumber, tmpIndex2Cluster);
@@ -365,7 +366,9 @@ char KernelFile::truncate()
 	partition->writeCluster(getIndexOfIndex2Cluster(index2ClusterPoRedu), tmpIndex2Cluster);
 	partition->writeCluster(index1ClusterNumber, index1Cluster);
 
-	size = size - cursor;
+	if (cursor != 0) size = size - cursor;
+	else size = 0;
+	
 	seek(size);
 
 	return 1;
